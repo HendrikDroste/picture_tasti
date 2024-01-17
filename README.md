@@ -1,8 +1,8 @@
-# Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data
+# Picture Version of Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data
 
-This is the official project page for "Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data"
+This is a implementation for pictures for the project "Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data"
 
-Please read the [paper](https://arxiv.org/abs/2009.04540) for full technical details.
+Please read the [paper](https://arxiv.org/abs/2009.04540) for full technical details of TASTI.
 
 # Requirements
 
@@ -14,10 +14,6 @@ Install the requitements with `pip install -r requirements.txt`. You will also n
 
 DO NOT use `numba==0.50.1` since there is a bug.
 
-To reproduce the experiments, your machine will need:
-- 300+GB of memory
-- 500+GB of space
-- GPU (e.g., NVIDIA V100, TITAN V, or later)
 
 On other datasets, hardware requirements will vary.
 
