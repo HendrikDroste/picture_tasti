@@ -120,100 +120,18 @@ class ImageIndex(tasti.Index):
         for current_obj in list(objects):
             label1_disjoint = [obj for obj in label1 if obj.object_name == current_obj]
             label2_disjoint = [obj for obj in label2 if obj.object_name == current_obj]
-            is_redundant = night_street_is_close_helper(label1_disjoint, label2_disjoint)
-            if not is_redundant:
+            if len(label1_disjoint) != len(label2_disjoint):
                 return False
         return True
-
-
-'''
-Defines our notion of 'closeness' as described in the paper for two labels for only one object type.
-'''
-
-
-def night_street_is_close_helper(label1, label2):
-    if len(label1) != len(label2):
-        return False
-    counter = 0
-    for obj1 in label1:
-        xavg1 = (obj1.xmin + obj1.xmax) / 2.0
-        yavg1 = (obj1.ymin + obj1.ymax) / 2.0
-        coord1 = [xavg1, yavg1]
-        expected_counter = counter + 1
-        for obj2 in label2:
-            xavg2 = (obj2.xmin + obj2.xmax) / 2.0
-            yavg2 = (obj2.ymin + obj2.ymax) / 2.0
-            coord2 = [xavg2, yavg2]
-            if distance.euclidean(coord1, coord2) < 100:
-                counter += 1
-                break
-        if expected_counter != counter:
-            break
-    return len(label1) == counter
 
 
 def transform_images(frame):
     return frame
 
 
-class PictureAggregateQuery(tasti.AggregateQuery):
-    def score(self, target_dnn_output):
-        return len(target_dnn_output)
-
-
 class PictureLimitQuery(tasti.LimitQuery):
     def score(self, target_dnn_output):
         return len(target_dnn_output)
-
-
-class PicturePrecisionQuery(tasti.SUPGPrecisionQuery):
-    def score(self, target_dnn_output):
-        return 1.0 if len(target_dnn_output) > 0 else 0.0
-
-
-class PictureSUPGRecallQuery(tasti.SUPGRecallQuery):
-    def score(self, target_dnn_output):
-        return 1.0 if len(target_dnn_output) > 0 else 0.0
-
-
-class PictureLHSPrecisionQuery(tasti.SUPGPrecisionQuery):
-    def score(self, target_dnn_output):
-        def proc_boxes(boxes):
-            mid = 1750 / 2
-            for box in boxes:
-                x = (box.xmin + box.xmax) / 2.
-                if x < mid:
-                    return True
-            return False
-
-        return proc_boxes(target_dnn_output)
-
-
-class PictureLHSRecallQuery(tasti.SUPGRecallQuery):
-    def score(self, target_dnn_output):
-        def proc_boxes(boxes):
-            mid = 1750 / 2
-            for box in boxes:
-                x = (box.xmin + box.xmax) / 2.
-                if x < mid:
-                    return True
-            return False
-
-        return proc_boxes(target_dnn_output)
-
-
-class PictureAveragePositionAggregateQuery(tasti.AggregateQuery):
-    def score(self, target_dnn_output):
-        def proc_boxes(boxes):
-            avg = 0.
-            if len(boxes) == 0:
-                return 0.
-            for box in boxes:
-                x = (box.xmin + box.xmax) / 2.
-                avg += x / 1750
-            return avg / len(boxes)
-
-        return proc_boxes(target_dnn_output)
 
 
 class ImageConfig(tasti.IndexConfig):
