@@ -480,6 +480,7 @@ dependencies:
   - zope.interface=5.4.0=py38h7f8727e_0
   - zstd=1.4.9=haebb681_0
   - pip:
+    - datasets
     - docker-pycreds==0.4.0
     - feather-format==0.4.1
     - fire==0.4.0
