@@ -1,4 +1,4 @@
-# Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data
+# Picture Version of Task-agnostic Indexes for Deep Learning-based Queries over Unstructured Data
 
 This is the project page for the seminar "A Framework for Measuring the Performance of Selection Queries over Images"
 This project is based on the TASTI project and is extended by a additional baseline.
@@ -12,10 +12,6 @@ Install the requitements with `pip install -r requirements.txt`. You will also n
 - [BlazeIt](https://github.com/stanford-futuredata/blazeit)
 - [SUPG](https://github.com/stanford-futuredata/supg)
 - Install the tasti package with `pip install -e .` as well.
-
-DO NOT use `numba==0.50.1` since there is a bug.
-
-On other datasets, hardware requirements will vary.
 
 # Installation
 If you want to reproduce our experiments, use Python 3.10 and a conda environment to install `tasti.yml`. You'll also need to install `blazeit`, `supg`, and `tasti` as described below.
