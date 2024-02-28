@@ -6,6 +6,7 @@ import torch.utils.data as data_utils
 from scipy.spatial import distance
 from datasets import load_dataset, load_from_disk
 
+PATH = "~/../../mount-ssd/hendrik/imageNet"
 
 COCO_INSTANCE_CATEGORY_NAMES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
@@ -80,8 +81,8 @@ class ImageDataSet(torch.utils.data.Dataset):
 
 class ImageIndex(tasti.Index):
     def get_target_dnn(self):
-        #model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True, progress=True)
-        model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, progress=True)
+        model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True, progress=True)
+        #model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, progress=True)
         return model
 
     def get_embedding_dnn(self):
@@ -94,11 +95,11 @@ class ImageIndex(tasti.Index):
         return model
 
     def get_target_dnn_dataset(self, train_or_test='train'):
-        dataset = load_from_disk("~/../../mount-ssd/hendrik/imageNet/train")
+        dataset = load_from_disk(PATH + "/train")
         return ImageDataSet(dataset, transform_fn=transform_images)
 
     def get_embedding_dnn_dataset(self, train_or_test='test'):
-        dataset = load_from_disk("~/../../mount-ssd/hendrik/imageNet/test")
+        dataset = load_from_disk(PATH + "/test")
         return ImageDataSet(dataset, transform_fn=transform_images)
 
     def target_dnn_callback(self, target_dnn_output):
@@ -154,38 +155,33 @@ class ImageConfig(tasti.IndexConfig):
 if __name__ == '__main__':
     config = ImageConfig()
     index = ImageIndex(config=config)
+    start = time.time()
     index.init()
-
-    # query = PictureAggregateQuery(index)
-    # query.execute(err_tol=0.1, confidence=0.1)
+    end = time.time()
+    creation_time = end-start
+    print("Index creation time: " + str(creation_time))
 
     query = PictureLimitQuery(index)
     start = time.time()
-    query.execute(want_to_find=1, nb_to_find=1)
+    res = query.execute(want_to_find=1, nb_to_find=1)
     end = time.time()
     query_time = end-start
-    print("Execution Time for 1 picture: " + str(query_time))
+    print("Execution Time for 1 picture: " + str(query_time) + "Target DNN Calls: " + str(res["nb_calls"]))
 
     start = time.time()
-    query.execute(want_to_find=1, nb_to_find=16)
+    res = query.execute(want_to_find=1, nb_to_find=16)
     end = time.time()
     query_time = end-start
-    print("Execution Time for 16 pictures: " + str(query_time))
+    print("Execution Time for 16 picture: " + str(query_time) + "Target DNN Calls: " + str(res["nb_calls"]))
 
     start = time.time()
-    query.execute(want_to_find=1, nb_to_find=64)
+    res = query.execute(want_to_find=1, nb_to_find=64)
     end = time.time()
     query_time = end-start
-    print("Execution Time for 64 pictures: " + str(query_time))
+    print("Execution Time for 64 pictures: " + str(query_time) + "Target DNN Calls: " + str(res["nb_calls"]))
 
     start = time.time()
-    query.execute(want_to_find=1, nb_to_find=128)
+    res = query.execute(want_to_find=1, nb_to_find=128)
     end = time.time()
     query_time = end-start
-    print("Execution Time for 128 pictures: " + str(query_time))
-
-    start = time.time()
-    query.execute(want_to_find=1, nb_to_find=256)
-    end = time.time()
-    query_time = end-start
-    print("Execution Time for 256 pictures: " + str(query_time))
+    print("Execution Time for 128 pictures: " + str(query_time) + "Target DNN Calls: " + str(res["nb_calls"]))

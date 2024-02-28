@@ -7,7 +7,8 @@ from pymongo.server_api import ServerApi
 from datasets import load_from_disk
 from tqdm.autonotebook import tqdm
 
-uri = "mongodb+srv://admin:admin@cluster0.3dy8ntv.mongodb.net/?retryWrites=true&w=majority"
+# Insert MongoDB server URI here
+uri = ""
 
 COCO_INSTANCE_CATEGORY_NAMES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
@@ -90,14 +91,15 @@ def target_dnn_callback(target_dnn_output):
     label = []
     for i in range(len(boxes)):
         object_name = COCO_INSTANCE_CATEGORY_NAMES[object_ids[i]]
-        if confidences[i] > 0.50 and object_name == 'car':
+        if confidences[i] > 0.90 and object_name == 'car':
             box = Box(boxes[i], object_ids[i], confidences[i])
             label.append(box)
         label.append(None)
     return label
 
 
-model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True, progress=True)
+#model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True, progress=True)
+model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, progress=True)
 model.eval()
 
 dataset = load_from_disk("~/../../mount-ssd/hendrik/imageNet/train")
@@ -117,6 +119,7 @@ boxes = {}
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client['ml-systems']
 collection = db['maskrcnn_resnet50_fpn']
+collection.delete_many({})
 
 results = []
 
@@ -127,12 +130,28 @@ for data, label in tqdm(dataloader):
     i = 0
     for box in boxes:
         if box is not None:
-            results.append({str(label[i]): float(box.confidence)})
+            results.append({"ImageID": str(label[i]), "ObjectName": COCO_INSTANCE_CATEGORY_NAMES[box.object_name], "Confidence": float(box.confidence)})
         i += 1
 
-    if len(results) > 100:
+    if len(results) > 10:
         collection.insert_many(results)
         results = []
 
 if len(results) > 0:
     collection.insert_many(results)
+
+collection.create_index([('ObjectName', 1)])
+explain = collection.find({"ObjectName": "car"}).limit(1).explain()
+print("Query runtime: " + str(explain['executionStats']))
+
+collection.create_index([('ObjectName', 16)])
+explain = collection.find({"ObjectName": "car"}).limit(16).explain()
+print("Query runtime: " + str(explain['executionStats']))
+
+collection.create_index([('ObjectName', 64)])
+explain = collection.find({"ObjectName": "car"}).limit(64).explain()
+print("Query runtime: " + str(explain['executionStats']))
+
+collection.create_index([('ObjectName', 128)])
+explain = collection.find({"ObjectName": "car"}).limit(128).explain()
+print("Query runtime: " + str(explain['executionStats']))
